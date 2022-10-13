@@ -11,10 +11,8 @@ class SafeCommit::Assertion
     if @guess == comparable_fact
       puts "OK"
     else
-      puts "WARN. because: #{@guess}"
-      puts "do you want to proceed with the commit? y[N]"
-      answer = gets.chomp
-      raise unless answer == "y"
+      puts "Exiting. because: #{@guess}"
+      exit!
     end
   end
 
@@ -22,10 +20,9 @@ class SafeCommit::Assertion
     if @guess != comparable_fact
       puts "OK"
     else
-      puts "WARN. because: #{@guess}"
-      puts "do you want to proceed with the commit? y[N]"
-      answer = gets.chomp
-      raise unless answer == "y"
+      puts "Exiting. because: #{@guess}"
+      exit!
+      # raise "halting commit" unless answer == "y"
     end
   end
 end
