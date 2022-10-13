@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+require_relative "../lib/safe_commit"
+include SafeCommit
+
+require "pry"
+
+if ARGV[0]
+  eval(File.read(ARGV[0]))
+  return
+end
+
+Pry.start
