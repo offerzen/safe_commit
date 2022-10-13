@@ -37,7 +37,20 @@ Pry.start
 
 use the binstub in your pre-commit hooks.
 ```
-echo "../../bin/safe_commit_checks" >> .git/hooks/pre-commit
+touch .git/hooks/pre-commit
+chmod 755 .git/hooks/pre-commit
+echo "./bin/safe_commit_checks .before_commit.sc" >> .git/hooks/pre-commit
+```
+
+create your safe commit checks in `.before_commit.sc`
+with some sample checks
+```
+file_extension_to_examine ".rb"
+test_engine "rspec"
+trunk_branch "main"
+
+expect(branch).to_not be_trunk
+expect(linting).to be_acceptable
 ```
 
 ## Usage
