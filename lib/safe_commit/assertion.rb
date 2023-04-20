@@ -26,6 +26,15 @@ module SafeCommit
       end
     end
 
+    def error(message = nil)
+      message = if message.nil?
+                  "⚠️ \tERROR\t Continue with commit? (y/n) "
+                else
+                  "⚠️ \t #{message} detected.\t Continue with commit? (y/n) "
+                end
+      confirm(message)
+    end
+
     private
 
     def confirm(message)

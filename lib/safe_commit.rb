@@ -73,7 +73,7 @@ module SafeCommit
   # linting DSL
 
   def linting
-    output, = Open3.capture2("rubocop  #{ModiFile.instance.modified_files.join(" ")} | tail -n 1 | awk -F, '{print $2}'")
+    output, = Open3.capture2("rubocop #{ModiFile.instance.modified_files.join(" ")} | tail -n 1 | awk -F, '{print $2}'")
     output.chomp
   end
 
@@ -83,6 +83,16 @@ module SafeCommit
 
   def be_acceptable
     " no offenses detected"
+  end
+
+  # custom gotchas
+  def no_presecence_of(pattern, message = nil)
+    puts "checking for presence of #{pattern}...".colorize(:green)
+    stdout, = Open3.capture2("git diff --cached | grep -ne #{pattern}")
+    return if stdout.empty?
+
+    puts stdout
+    Assertion.instance.error(message)
   end
 
   private
