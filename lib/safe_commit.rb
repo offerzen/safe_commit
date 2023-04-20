@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require "singleton"
+require "colorize"
+require "open3"
 
 require_relative "safe_commit/version"
 require_relative "safe_commit/assertion"
@@ -21,10 +23,16 @@ module SafeCommit
   end
 
   def tests(options = { safety: true, verbose: false })
-    puts "running tests..."
-    a = `./bin/rspec #{test_files(options).join(" ")} --format documentation`
-    puts a if options[:verbose]
-    a.split("\n")[-3].split(", ")[1]
+    puts "Running tests...".colorize(:green)
+
+    rspec_output = run_rspec(test_files(options))
+    if /errors occurred/ =~ rspec_output
+      print(rspec_output.colorize(:red))
+      "Error running tests, skipping..."
+    else
+      puts rspec_output if options[:verbose]
+      extract_failed_tests_count(rspec_output)
+    end
   end
 
   def pass
@@ -51,7 +59,7 @@ module SafeCommit
   end
 
   def branch
-    `git branch --show-current`
+    `git branch --show-current`.chomp
   end
 
   def trunk_branch(setting)
@@ -59,20 +67,33 @@ module SafeCommit
   end
 
   def be_trunk
-    "#{ModiFile.instance.protected_branch}\n"
+    ModiFile.instance.protected_branch.to_s
   end
 
   # linting DSL
 
   def linting
-    `echo #{ModiFile.instance.modified_files.join("\n")} | xargs rubocop | tail -n 1 | awk -F, '{print $2}'`
+    output, = Open3.capture2("rubocop  #{ModiFile.instance.modified_files.join(" ")} | tail -n 1 | awk -F, '{print $2}'")
+    output.chomp
   end
 
   def be_acceptable_enough(threshold = 0)
-    " #{threshold} offenses detected\n"
+    "below the threshold of #{threshold} offenses"
   end
 
   def be_acceptable
     be_acceptable_enough(0)
+  end
+
+  private
+
+  def run_rspec(test_filenames)
+    rspec_command = "./bin/rspec #{test_filenames.join(" ")} --format documentation"
+    output, = Open3.capture2(rspec_command)
+    output
+  end
+
+  def extract_failed_tests_count(rspec_output)
+    rspec_output.split("\n")[-3].split(", ")[1]
   end
 end
