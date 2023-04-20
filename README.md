@@ -48,7 +48,7 @@ else
   #---DSL usage example
   file_extension_to_examine ".rb"
   test_engine "rspec"
-  trunk_branch "main"
+  trunk_branch "master"
   expect(branch).to_not be_trunk
   test_files
   test_files safety: false
@@ -79,7 +79,7 @@ with some sample checks
 ```
 file_extension_to_examine ".rb"
 test_engine "rspec"
-trunk_branch "main"
+trunk_branch "master"
 
 expect(branch).to_not be_trunk
 expect(linting).to be_acceptable
