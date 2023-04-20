@@ -42,6 +42,6 @@ else
 
   #---
   SAMPLE
-  
+
   Pry.start
 end
