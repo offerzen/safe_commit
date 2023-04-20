@@ -26,7 +26,7 @@ RSpec.describe SafeCommit::Assertion do
     context "when guess is not equal to comparable_fact" do
       it "prints a success message and continues" do
         subject.guess = 5
-        expect { subject.not_to(10) }.to output(/✅/).to_stdout
+        expect { subject.to_not(10) }.to output(/✅/).to_stdout
       end
     end
 
@@ -34,7 +34,7 @@ RSpec.describe SafeCommit::Assertion do
       it "prints a warning message and asks for confirmation" do
         subject.guess = 5
         allow($stdin).to receive(:gets).and_return("n")
-        expect { subject.not_to(5) }.to output(/⚠️/).to_stdout.and raise_error(SystemExit)
+        expect { subject.to_not(5) }.to output(/⚠️/).to_stdout.and raise_error(SystemExit)
       end
     end
   end
