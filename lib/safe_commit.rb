@@ -82,7 +82,7 @@ module SafeCommit
   end
 
   def be_acceptable
-    be_acceptable_enough(0)
+    " no offenses detected"
   end
 
   private
