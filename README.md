@@ -22,17 +22,49 @@ chmod 755 ./bin/safe_commit_checks
 with contents
 ```
 #!/usr/bin/env ruby
-require_relative "../lib/safe_commit"
+# frozen_string_literal: true
+APP_PATH = File.expand_path('../config/application', __dir__)
+require_relative '../config/boot'
+require "rails/commands"
+
 include SafeCommit
 
 require "pry"
 
-if ARGV[0]
-  eval(File.read(ARGV[0]))
-  return
+$stdin.reopen("/dev/tty")
+
+class SafeCommitRunner
+  def self.run_from_file(file_path)
+    load(file_path)
+  end
+
+  # Add other methods for the DSL example, if needed.
 end
 
-Pry.start
+if ARGV[0]
+  SafeCommitRunner.run_from_file(ARGV[0])
+else
+  print <<-SAMPLE
+  #---DSL usage example
+  file_extension_to_examine ".rb"
+  test_engine "rspec"
+  trunk_branch "main"
+  expect(branch).to_not be_trunk
+  test_files
+  test_files safety: false
+  modified_files
+  branch
+  linting
+  expect(linting).to be_acceptable
+  expect(linting).to be_acceptable_enough(2)
+  expect(branch).to_not be_trunk
+  expect(tests(safety: false, verbose: true)).to pass
+  #---
+  SAMPLE
+
+  Pry.start
+end
+
 ```
 
 use the binstub in your pre-commit hooks.
