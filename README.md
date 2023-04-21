@@ -71,10 +71,10 @@ use the binstub in your pre-commit hooks.
 ```
 touch .git/hooks/pre-commit
 chmod 755 .git/hooks/pre-commit
-echo "./bin/safe_commit_checks .before_commit.sc" >> .git/hooks/pre-commit
+echo "./bin/safe_commit_checks .before_commit.rb" >> .git/hooks/pre-commit
 ```
 
-create your safe commit checks in `.before_commit.sc`
+create your safe commit checks in `.before_commit.rb`
 with some sample checks
 ```
 file_extension_to_examine ".rb"
@@ -114,6 +114,21 @@ expect(linting).to be_acceptable
 expect(linting).to be_acceptable_enough(2)
 expect(branch).to_not be_trunk
 expect(tests).to pass
+```
+
+
+### To receive refactoring suggestions from ChatGPT
+
+set the OPEN API KEY in `.env` (see `.sample.env`)
+
+```
+OPENAI_API_KEY=sk-api-key
+```
+
+Add the following DSL command to your `.before_commit.rb`
+
+```
+suggest_refactors
 ```
 
 ## Development

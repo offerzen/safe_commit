@@ -3,10 +3,13 @@
 require "singleton"
 require "colorize"
 require "open3"
+require "dotenv/load"
+require "openai"
 
 require_relative "safe_commit/version"
 require_relative "safe_commit/assertion"
 require_relative "safe_commit/modi_file"
+require_relative "safe_commit/interaction"
 
 module SafeCommit
   class Error < StandardError; end
@@ -95,6 +98,21 @@ module SafeCommit
     Assertion.instance.error(message)
   end
 
+  # refactoring with GPT turbo 3.5 using chat
+  def suggest_refactors
+    modified_files.each do |modified_file|
+      message = "💡\t want ChatGPT advice on refactoring #{modified_file}? (y/x)".colorize(:green)
+      proceed = Interaction.confirm(message)
+      next unless proceed
+
+      f = File.read(modified_file.to_s)
+      exit(1) if ENV.fetch("OPENAI_API_KEY").nil? || f.nil?
+
+      puts get_suggestions(f)
+    end
+    nil
+  end
+
   private
 
   def run_rspec(test_filenames)
@@ -105,5 +123,29 @@ module SafeCommit
 
   def extract_failed_tests_count(rspec_output)
     rspec_output.split("\n")[-3].split(", ")[1]
+  end
+
+  def chat_gpt_payload(filename)
+    {
+      parameters: {
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content: "You are an ruby software developer expert tasked with refactoring ruby code to follow best practices and optimise readability."
+          },
+          { role: "assistant", content: "Sure, I'd be happy to help! Can you provide me with the code that needs to be refactored?" },
+          { role: "user", content: filename.to_s }
+        ],
+        temperature: 0.7
+      }
+    }
+  end
+
+  def get_suggestions(filename)
+    client = OpenAI::Client.new(access_token: ENV.fetch("OPENAI_API_KEY"))
+
+    response = client.chat(chat_gpt_payload(filename))
+    response.dig("choices", 0, "message", "content")
   end
 end
