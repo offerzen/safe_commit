@@ -3,6 +3,7 @@ PATH
   specs:
     safe_commit (0.1.0)
       colorize
+      dotenv
       rubocop (~> 1.21)
       ruby-openai
 
@@ -68,7 +69,6 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  dotenv
   pry
   rake (~> 13.0)
   rspec (~> 3.0)
