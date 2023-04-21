@@ -127,25 +127,23 @@ module SafeCommit
 
   def chat_gpt_payload(filename)
     {
-      parameters: {
-        model: "gpt-3.5-turbo",
-        messages: [
-          {
-            role: "system",
-            content: "You are an ruby software developer expert tasked with refactoring ruby code to follow best practices and optimise readability."
-          },
-          { role: "assistant", content: "Sure, I'd be happy to help! Can you provide me with the code that needs to be refactored?" },
-          { role: "user", content: filename.to_s }
-        ],
-        temperature: 0.7
-      }
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: "You are an ruby software developer expert tasked with refactoring ruby code to follow best practices and optimise readability."
+        },
+        { role: "assistant", content: "Sure, I'd be happy to help! Can you provide me with the code that needs to be refactored?" },
+        { role: "user", content: filename.to_s }
+      ],
+      temperature: 0.7
     }
   end
 
   def get_suggestions(filename)
     client = OpenAI::Client.new(access_token: ENV.fetch("OPENAI_API_KEY"))
 
-    response = client.chat(chat_gpt_payload(filename))
+    response = client.chat(parameters: chat_gpt_payload(filename))
     response.dig("choices", 0, "message", "content")
   end
 end
