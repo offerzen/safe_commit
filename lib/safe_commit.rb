@@ -127,7 +127,7 @@ module SafeCommit
 
   def chat_gpt_payload(filename)
     {
-      model: "gpt-3.5-turbo",
+      model: "gpt-4",
       messages: [
         {
           role: "system",
