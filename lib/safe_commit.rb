@@ -106,7 +106,7 @@ module SafeCommit
       next unless proceed
 
       f = File.read(modified_file.to_s)
-      exit(1) if ENV.fetch("OPENAI_API_KEY").nil? || f.nil?
+      exit(1) if ENV.fetch("SAFE_COMMIT_OPENAI_API_KEY").nil? || f.nil?
 
       puts get_suggestions(f)
     end
@@ -141,7 +141,7 @@ module SafeCommit
   end
 
   def get_suggestions(filename)
-    client = OpenAI::Client.new(access_token: ENV.fetch("OPENAI_API_KEY"))
+    client = OpenAI::Client.new(access_token: ENV.fetch("SAFE_COMMIT_OPENAI_API_KEY"))
 
     response = client.chat(parameters: chat_gpt_payload(filename))
     response.dig("choices", 0, "message", "content")

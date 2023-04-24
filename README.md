@@ -122,7 +122,7 @@ expect(tests).to pass
 set the OPEN API KEY in `.env` (see `.sample.env`)
 
 ```
-OPENAI_API_KEY=sk-api-key
+SAFE_COMMIT_OPENAI_API_KEY=sk-api-key
 ```
 
 Add the following DSL command to your `.before_commit.rb`
