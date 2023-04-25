@@ -32,7 +32,7 @@ module SafeCommit
         )}/g'))
         output.gsub("app", "spec").split("\n")
       else
-        []
+        abort("❗️ unsupported test engine: #{test_engine}".colorize(:red))
       end
     end
 

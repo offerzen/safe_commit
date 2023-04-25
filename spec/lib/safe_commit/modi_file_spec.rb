@@ -34,7 +34,8 @@ RSpec.describe SafeCommit::ModiFile do
     context "when test_engine is not supported" do
       it "returns an empty array" do
         subject.test_engine = "unsupported"
-        expect(subject.expected_test_files).to eq([])
+        # expect(subject.expected_test_files).to eq([])
+        expect { subject.expected_test_files }.to raise_error(SystemExit).and output(/❗️/).to_stderr
       end
     end
   end

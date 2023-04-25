@@ -89,7 +89,7 @@ module SafeCommit
   end
 
   # custom gotchas
-  def no_presecence_of(pattern, message = nil)
+  def no_presence_of(pattern, message = nil)
     puts "checking for presence of #{pattern}...".colorize(:green)
     stdout, = Open3.capture2("git diff --cached | grep -ne #{pattern}")
     return if stdout.empty?
@@ -98,7 +98,6 @@ module SafeCommit
     Assertion.instance.error(message)
   end
 
-  # refactoring with GPT turbo 3.5 using chat
   def suggest_refactors
     modified_files.each do |modified_file|
       message = "💡\t want ChatGPT advice on refactoring #{modified_file}? (y/x)".colorize(:green)

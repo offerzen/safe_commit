@@ -47,23 +47,7 @@ end
 if ARGV[0]
   SafeCommitRunner.run_from_file(ARGV[0])
 else
-  print <<-SAMPLE
-  #---DSL usage example
-  file_extension_to_examine ".rb"
-  test_engine "rspec"
-  trunk_branch "master"
-  expect(branch).to_not be_trunk
-  test_files
-  test_files safety: false
-  modified_files
-  branch
-  linting
-  expect(linting).to be_acceptable
-  expect(linting).to be_acceptable_enough(2)
-  expect(branch).to_not be_trunk
-  expect(tests(safety: false, verbose: true)).to pass
-  #---
-  SAMPLE
+  puts "Get started with SafeCommit at https://github.com/offerzen/safe_commit"
 
   Pry.start
 end
@@ -89,6 +73,22 @@ expect(linting).to be_acceptable
 ```
 
 ## Usage
+
+Features include:
+- `modified_files`: show a listing of all modified files (configure with `file_extension_to_examine`)
+- `test_files`: show a listing of all test files that correspond to the file changes you've made
+- `tests`: run the tests using the configured `test_engine` 
+- `no_presence_of`: asserts that given string is not present in the changes staged for commit.
+- `expect(<actual>).to `: asserts that actual is *equal to* the expected value.
+- supported expected values
+  - Any custom string or integer value
+  - `pass`: syntactic sugar for the parsed result of the rspec test suite output
+  - `be_acceptable`: wrapper for rubocop parsed output
+  - `be_acceptable_enough(<limit>)`: tolerates a limited number of violations.
+  - `be_trunk`: wrapper for common trunk branch names, *main* or *master*.
+- `suggest_refactors`: when used, sends your .rb to ChatGPT asks for readability refactor suggestions.
+
+### Examples
 
 ```
 [1] pry(main)> branch
