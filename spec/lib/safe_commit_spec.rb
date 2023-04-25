@@ -1,6 +1,6 @@
 # frozen_string_literal: true
-require "spec_helper"
 
+require "spec_helper"
 
 RSpec.describe SafeCommit do
   it "has a version number" do
@@ -24,15 +24,15 @@ RSpec.describe SafeCommit do
     end
   end
 
-  describe "#tests" do
+  describe "#tests", skip: "unable to stub the `tests` call" do
     let(:options) { { safety: true, verbose: false } }
 
-    xit "returns '0 failures' when no errors occur during testing" do
+    it "returns '0 failures' when no errors occur during testing" do
       allow(self).to receive(:extract_failed_tests_count).and_return("0 failures")
       expect(tests(options)).to eq("0 failures")
     end
 
-    xit "returns 'Error running tests, skipping...' when errors occur during testing" do
+    it "returns 'Error running tests, skipping...' when errors occur during testing" do
       allow(self).to receive(:run_rspec).and_return("errors occurred")
       expect(tests(options)).to eq("Error running tests, skipping...")
     end
@@ -93,7 +93,7 @@ RSpec.describe SafeCommit do
       expect(be_trunk).to eq(protected_branch)
     end
   end
-    
+
   describe "#linting" do
     it "returns the rubocop linting output" do
       rubocop_output = "no offenses detected"
@@ -101,14 +101,14 @@ RSpec.describe SafeCommit do
       expect(linting).to eq(rubocop_output)
     end
   end
-    
+
   describe "#be_acceptable_enough" do
     it "returns a string with the threshold of offenses" do
       threshold = 5
       expect(be_acceptable_enough(threshold)).to eq("below the threshold of #{threshold} offenses")
     end
   end
-    
+
   describe "#no_presence_of" do
     let(:pattern) { "binding.pry" }
     let(:message) { "There should be no bindings" }
@@ -120,7 +120,7 @@ RSpec.describe SafeCommit do
         no_presence_of(pattern, message)
       end
     end
-    
+
     context "when pattern is not found in the diff" do
       it "does not call Assertion.instance.error" do
         allow(Open3).to receive(:capture2).and_return([""])
@@ -134,16 +134,16 @@ RSpec.describe SafeCommit do
     let(:modified_file) { "some_file.rb" }
     let(:file_content) { "def some_method; end" }
     let(:openai_api_key) { "test_key" }
-    let(:response) { double("response", dig: "suggestion") }
-    
+    let(:response) { instance_double(response, dig: "suggestion") }
+
     before do
       allow(ENV).to receive(:fetch).with("SAFE_COMMIT_OPENAI_API_KEY").and_return(openai_api_key)
       allow(File).to receive(:read).with(modified_file).and_return(file_content)
       allow(self).to receive(:modified_files).and_return([modified_file])
       allow(Interaction).to receive(:confirm).and_return(true)
-      allow(OpenAI::Client).to receive(:new).and_return(double("client", chat: response))
+      allow(OpenAI::Client).to receive(:new).and_return(instance_double(client, chat: response))
     end
-    
+
     it "returns suggestions from ChatGPT API" do
       expect(suggest_refactors).to be_nil
     end

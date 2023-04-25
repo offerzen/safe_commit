@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-
 require "bundler/setup"
 require "safe_commit"
 require "pry"
@@ -22,6 +21,6 @@ if ARGV[0]
   SafeCommitRunner.run_from_file(ARGV[0])
 else
   puts "Get started with SafeCommit at https://github.com/offerzen/safe_commit"
-  
+
   Pry.start
 end
