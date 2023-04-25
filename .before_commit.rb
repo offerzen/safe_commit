@@ -16,6 +16,6 @@ no_presence_of("BaseJob", message)
 
 expect(branch).to_not be_trunk
 expect(linting).to be_acceptable
-expect(tests(safety: false, verbose: true)).to pass
+expect(tests).to pass
 
 suggest_refactors

@@ -122,6 +122,7 @@ module SafeCommit
 
   def extract_failed_tests_count(rspec_output)
     test_results = rspec_output.split("\n").select { |element| element.match(/\d+ examples?, \d+ failures?, \d+ pending/) }
+    puts test_results
     test_results[0].match(/(?<fails>\d+ failures?)/)[:fails]
   end
 
