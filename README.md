@@ -1,8 +1,11 @@
 # SafeCommit
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/safe_commit`. To experiment with that code, run `bin/console` for an interactive prompt.
+A ruby DSL for defining and using pre-commit hooks in a centralised way. pre-commit hooks are usually copied and pasted across various repo’s and usually managed locally per machine.
+The aim of this DSL is to easily distribute pre-commit functionality and for users to be able to receive updates.
+The DSL can be extended to help drive adoption of new patterns that are being migrated towards – for example, not inheriting from BaseJob. New migrations are not always top of mind in a large codebase and this DSL provides a means of developer feedback.
+For large test suites, it's not always practical to run all the tests in local. This DSL can identify modified/new ruby files and runs its correspending test file using the standard filenaming conventions.
 
-TODO: Delete this and the text above, and describe your gem
+In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/safe_commit`. To experiment with that code, run `bin/console` for an interactive prompt.
 
 ## Installation
 
