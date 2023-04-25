@@ -15,7 +15,7 @@ module SafeCommit
     def modified_files
       case file_extension
       when ".rb"
-        output, = Open3.capture2("git status | egrep 'modified.*\\.rb' | awk '{print $2}'")
+        output, = Open3.capture2("git status | sed 's/new file/newfile/g' | egrep '(modified|newfile).*\\.rb' | awk '{print $2}'")
         output.split("\n").uniq
       else
         abort("❗️ #{file_extension} extension not supported".colorize(:red))
