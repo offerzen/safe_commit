@@ -26,15 +26,20 @@ RSpec.describe SafeCommit::ModiFile do
     context "when test_engine is rspec" do
       it "returns an array of corresponding test files" do
         allow(subject).to receive(:modified_files).and_return(["app/models/user.rb"])
-        allow(Open3).to receive(:capture2).and_return(["spec/models/user_spec.rb\n", ""])
+        allow(Open3).to receive(:capture2).and_return(["app/models/user_spec.rb\n", ""])
         expect(subject.expected_test_files).to eq(["spec/models/user_spec.rb"])
+      end
+
+      it "returns an array of corresponding test files for a gem" do
+        allow(subject).to receive(:modified_files).and_return(["lib/safe_commit/user.rb"])
+        allow(Open3).to receive(:capture2).and_return(["lib/safe_commit/user_spec.rb\n", ""])
+        expect(subject.expected_test_files).to eq(["spec/lib/safe_commit/user_spec.rb"])
       end
     end
 
     context "when test_engine is not supported" do
       it "returns an empty array" do
         subject.test_engine = "unsupported"
-        # expect(subject.expected_test_files).to eq([])
         expect { subject.expected_test_files }.to raise_error(SystemExit).and output(/❗️/).to_stderr
       end
     end

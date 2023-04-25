@@ -29,7 +29,7 @@ module SafeCommit
     puts "Running tests...".colorize(:green)
 
     rspec_output = run_rspec(test_files(options))
-    if /errors occurred/ =~ rspec_output
+    if /errors? occurred/ =~ rspec_output
       print(rspec_output.colorize(:red))
       "Error running tests, skipping..."
     else
@@ -121,7 +121,8 @@ module SafeCommit
   end
 
   def extract_failed_tests_count(rspec_output)
-    rspec_output.split("\n")[-3].split(", ")[1]
+    test_results = rspec_output.split("\n").select { |element| element.match(/\d+ examples?, \d+ failures?, \d+ pending/) }
+    test_results[0].match(/(?<fails>\d+ failures?)/)[:fails]
   end
 
   def chat_gpt_payload(filename)

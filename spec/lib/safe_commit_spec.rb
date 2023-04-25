@@ -134,14 +134,14 @@ RSpec.describe SafeCommit do
     let(:modified_file) { "some_file.rb" }
     let(:file_content) { "def some_method; end" }
     let(:openai_api_key) { "test_key" }
-    let(:response) { instance_double(response, dig: "suggestion") }
+    let(:response) { double("response", dig: "suggestion") }
 
     before do
       allow(ENV).to receive(:fetch).with("SAFE_COMMIT_OPENAI_API_KEY").and_return(openai_api_key)
       allow(File).to receive(:read).with(modified_file).and_return(file_content)
       allow(self).to receive(:modified_files).and_return([modified_file])
       allow(Interaction).to receive(:confirm).and_return(true)
-      allow(OpenAI::Client).to receive(:new).and_return(instance_double(client, chat: response))
+      allow(OpenAI::Client).to receive(:new).and_return(double("client", chat: response))
     end
 
     it "returns suggestions from ChatGPT API" do

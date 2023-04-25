@@ -175,3 +175,6 @@ RSpec/MultipleExpectations:
 
 RSpec/MessageSpies:
   Enabled: false
+
+RSpec/VerifiedDoubles:
+  Enabled: false

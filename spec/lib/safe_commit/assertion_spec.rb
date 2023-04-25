@@ -23,7 +23,7 @@ RSpec.describe SafeCommit::Assertion do
   end
 
   describe "#to_not" do
-    context "when guess is not equal to comparable_fact" do
+    context "when gue ss is not equal to comparable_fact" do
       it "prints a success message and continues" do
         subject.guess = 5
         expect { subject.to_not(10) }.to output(/✅/).to_stdout

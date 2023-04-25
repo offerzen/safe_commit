@@ -25,12 +25,7 @@ module SafeCommit
     def expected_test_files
       case test_engine
       when "rspec"
-        differentiator = "spec"
-        file_list = modified_files.join("\n")
-        output, = Open3.capture2(%(echo "#{file_list}" | sed 's/\\.rb/\\_#{differentiator}\\.#{file_extension.gsub(
-          ".", ""
-        )}/g'))
-        output.gsub("app", "spec").split("\n")
+        generate_rspec_test_files
       else
         abort("❗️ unsupported test engine: #{test_engine}".colorize(:red))
       end
@@ -43,6 +38,28 @@ module SafeCommit
         available_files << file if output.empty?
       end
       available_files
+    end
+
+    private
+
+    def generate_rspec_test_files
+      differentiator = "spec"
+      file_list = modified_files.grep_v(/spec/)
+
+      output, = Open3.capture2(%(echo "#{file_list.join("\n")}" | sed 's/\\.rb/\\_#{differentiator}\\.#{file_extension.gsub(".", "")}/g'))
+      output_lines = output.split("\n")
+
+      process_output_lines(output_lines)
+    end
+
+    def process_output_lines(output_lines)
+      arr = []
+      if output_lines.any? { |line| line.match?(%r{lib/}) }
+        arr << output_lines.grep(%r{lib/}).map { |b| b.gsub("lib/", "spec/lib/") }
+      elsif output_lines.any? { |line| line.match?(%r{app/}) }
+        arr << output_lines.grep(%r{app/}).map { |b| b.gsub("app/", "spec/") }
+      end
+      arr.flatten
     end
   end
 end
