@@ -1,26 +1,26 @@
 #!/usr/bin/env ruby
-require_relative "../lib/safe_commit"
-include SafeCommit
+# frozen_string_literal: true
 
+require "bundler/setup"
+require "safe_commit"
 require "pry"
 
-if ARGV[0]
-  eval(File.read(ARGV[0]))
-  return
+$stdin.reopen("/dev/tty")
+
+include SafeCommit
+
+class SafeCommitRunner
+  def self.run_from_file(file_path)
+    load(file_path)
+  end
+
+  # Add other methods for the DSL example, if needed.
 end
 
-#---DSL example
+if ARGV[0]
+  SafeCommitRunner.run_from_file(ARGV[0])
+else
+  puts "Get started with SafeCommit at https://github.com/offerzen/safe_commit"
 
-# file_extension_to_examine ".rb"
-# test_engine "rspec"
-# trunk_branch "main"
-
-# expect(branch).to_not be_trunk
-# expect(linting).to be_acceptable
-# expect(tests).to pass
-
-# puts modified_files
-
-#---
-
-Pry.start
+  Pry.start
+end

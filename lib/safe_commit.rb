@@ -1,10 +1,15 @@
 # frozen_string_literal: true
 
 require "singleton"
+require "colorize"
+require "open3"
+require "dotenv/load"
+require "openai"
 
 require_relative "safe_commit/version"
 require_relative "safe_commit/assertion"
 require_relative "safe_commit/modi_file"
+require_relative "safe_commit/interaction"
 
 module SafeCommit
   class Error < StandardError; end
@@ -21,10 +26,20 @@ module SafeCommit
   end
 
   def tests(options = { safety: true, verbose: false })
-    puts "running tests..."
-    a = `./bin/rspec #{test_files(options).join(" ")} --format documentation`
-    puts a if options[:verbose]
-    a.split("\n")[-3].split(", ")[1]
+    puts "Running tests...".colorize(:green)
+    if test_files(options).empty?
+      puts "No available tests to run on changed files"
+      return pass
+    end
+
+    rspec_output = run_rspec(test_files(options))
+    if /errors? occurred/ =~ rspec_output
+      print(rspec_output.colorize(:red))
+      "Error running tests, skipping..."
+    else
+      puts rspec_output if options[:verbose]
+      extract_failed_tests_count(rspec_output)
+    end
   end
 
   def pass
@@ -51,7 +66,7 @@ module SafeCommit
   end
 
   def branch
-    `git branch --show-current`
+    `git branch --show-current`.chomp
   end
 
   def trunk_branch(setting)
@@ -59,20 +74,81 @@ module SafeCommit
   end
 
   def be_trunk
-    "#{ModiFile.instance.protected_branch}\n"
+    ModiFile.instance.protected_branch.to_s
   end
 
   # linting DSL
 
   def linting
-    `echo #{ModiFile.instance.modified_files.join("\n")} | xargs rubocop | tail -n 1 | awk -F, '{print $2}'`
+    output, = Open3.capture2("rubocop #{ModiFile.instance.modified_files.join(" ")} | tail -n 1 | awk -F, '{print $2}'")
+    output.chomp
   end
 
   def be_acceptable_enough(threshold = 0)
-    " #{threshold} offenses detected\n"
+    "below the threshold of #{threshold} offenses"
   end
 
   def be_acceptable
-    be_acceptable_enough(0)
+    " no offenses detected"
+  end
+
+  # custom gotchas
+  def no_presence_of(pattern, message = nil)
+    puts "checking for presence of #{pattern}...".colorize(:green)
+    stdout, = Open3.capture2("git diff --cached | grep -ne #{pattern}")
+    return if stdout.empty?
+
+    puts stdout
+    Assertion.instance.error(message)
+  end
+
+  def suggest_refactors
+    modified_files.each do |modified_file|
+      message = "💡\t want ChatGPT advice on refactoring #{modified_file}? (y/x)".colorize(:green)
+      proceed = Interaction.confirm(message)
+      next unless proceed
+
+      f = File.read(modified_file.to_s)
+      exit(1) if ENV.fetch("SAFE_COMMIT_OPENAI_API_KEY").nil? || f.nil?
+
+      puts get_suggestions(f)
+    end
+    nil
+  end
+
+  private
+
+  def run_rspec(test_filenames)
+    rspec_command = "./bin/rspec #{test_filenames.join(" ")} --format documentation"
+    output, = Open3.capture2(rspec_command)
+    output
+  end
+
+  def extract_failed_tests_count(rspec_output)
+    test_results = rspec_output.split("\n").select { |element| element.match(/\d+ examples?, \d+ failures?, \d+ pending/) }
+    puts test_results
+    test_results[0].match(/(?<fails>\d+ failures?)/)[:fails]
+  end
+
+  def chat_gpt_payload(filename)
+    {
+      model: "gpt-4",
+      messages: [
+        {
+          role: "system",
+          content: "You are an ruby software developer expert tasked with refactoring ruby code to follow best practices and optimise readability."
+        },
+        { role: "assistant", content: "Sure, I'd be happy to help! Can you provide me with the code that needs to be refactored?" },
+        { role: "user", content: filename.to_s }
+      ],
+      temperature: 0.7
+    }
+  end
+
+  def get_suggestions(filename)
+    client = OpenAI::Client.new(access_token: ENV.fetch("SAFE_COMMIT_OPENAI_API_KEY"))
+
+    response = client.chat(parameters: chat_gpt_payload(filename))
+    response.dig("choices", 0, "message", "content")
   end
 end

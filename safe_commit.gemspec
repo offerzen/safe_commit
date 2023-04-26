@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.summary = "Ruby DSL for pre-commit checks"
   spec.homepage = "https://www.offerzen.com"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 2.6.0"
+  spec.required_ruby_version = "~> 3.0.0"
 
   # spec.metadata["allowed_push_host"] = "TODO: Set to your gem server 'https://example.com'"
 
@@ -30,8 +30,12 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
+  spec.add_dependency "colorize"
+  spec.add_dependency "dotenv"
   spec.add_dependency "rubocop", "~> 1.21"
+  spec.add_dependency "ruby-openai"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
+  spec.metadata["rubygems_mfa_required"] = "true"
 end
