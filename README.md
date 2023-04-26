@@ -1,13 +1,15 @@
-# SafeCommit
+# SafeCommit - A Ruby DSL for Ensuring Code Quality
 
-A ruby DSL for defining and using pre-commit hooks in a centralised way. pre-commit hooks are usually copied and pasted across various repo’s and usually managed locally per machine.
-The aim of this DSL is to easily distribute pre-commit functionality and for users to be able to receive updates.
-The DSL can be extended to help drive adoption of new patterns that are being migrated towards – for example, not inheriting from BaseJob. New migrations are not always top of mind in a large codebase and this DSL provides a means of developer feedback.
-For large test suites, it's not always practical to run all the tests in local. This DSL can identify modified/new ruby files and runs its correspending test file using the standard filenaming conventions.
+SafeCommit is a Ruby Domain-Specific Language (DSL) designed to streamline code quality assurance by running tests, performing linting, and suggesting refactors before committing changes to a Git repository. It serves as a centralized solution for defining and utilizing pre-commit hooks, eliminating the need to copy and paste them across multiple repositories or manage them locally on individual machines.
+
+The DSL facilitates easy distribution of pre-commit functionality and enables users to receive updates seamlessly. It can be extended to promote the adoption of new patterns in a codebase, such as avoiding inheritance from BaseJob. This feature helps developers stay informed about new migrations, even in large codebases where they may not be top of mind. Linting runs on changes files only, so that you can focus on leaving the code in a better place than you found it, rather than taking on historical styleguide offenses.
+
+For extensive test suites, running all tests locally may not be practical. SafeCommit can efficiently identify modified or new Ruby files and execute their corresponding test files based on standard naming conventions, saving time and ensuring code quality.
 
 In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/safe_commit`. To experiment with that code, run `bin/console` for an interactive prompt.
 
 ## Installation
+To start using SafeCommit, include the provided file in your project and make sure to have the required dependencies installed.
 
 Install the gem and add to the application's Gemfile by executing:
 
@@ -71,8 +73,101 @@ trunk_branch "master"
 expect(branch).to_not be_trunk
 expect(linting).to be_acceptable
 ```
+### To receive refactoring suggestions from ChatGPT
 
-## Usage
+set the OPEN API KEY in `.env` (see `.sample.env`)
+
+```
+SAFE_COMMIT_OPENAI_API_KEY=sk-api-key
+```
+
+Add the following DSL command to your `.before_commit.rb`
+
+```
+suggest_refactors
+```
+
+
+## SafeCommit DSL Usage
+
+### Assertions
+
+```ruby
+expect(guess)
+```
+Create an expectation with a guess that will be checked against actual results later.
+
+### Testing DSL
+```ruby
+test_engine(setting)
+```
+Set the testing engine to the provided setting.
+
+```ruby
+tests(options = { safety: true, verbose: false })
+```
+Run tests with the specified options. By default, it runs tests with safety enabled and minimal output.
+
+### Git DSL
+```ruby
+file_extension_to_examine(setting)
+```
+Set the file extension to be examined when analyzing modified files.
+
+```ruby
+modified_files
+```
+Retrieve a list of modified files in the current Git repository.
+
+```ruby
+test_files(options = { safety: true })
+```
+Retrieve a list of test files based on the provided options. By default, it returns test files with safety enabled.
+
+```ruby
+branch
+```
+Get the current Git branch.
+
+```ruby
+trunk_branch(setting)
+```
+Set the trunk or protected branch to the provided setting.
+
+```ruby
+be_trunk
+```
+Get the trunk or protected branch setting.
+
+### Linting DSL
+```ruby
+linting
+```
+Run RuboCop linting on modified files and return the output.
+
+```ruby
+be_acceptable_enough(threshold = 0)
+```
+Check if the number of offenses is below the specified threshold. By default, the threshold is 0.
+
+```ruby
+be_acceptable
+```
+Check if there are no offenses detected in the linting output.
+
+### Custom Gotchas
+```ruby
+no_presence_of(pattern, message = nil)
+```
+Check if the provided pattern is present in the staged changes of the Git repository. If found, display the message.
+
+```ruby
+suggest_refactors
+```
+Suggest refactors for each modified file using GPT-4. Requires the SAFE_COMMIT_OPENAI_API_KEY environment variable to be set with a valid OpenAI API key.
+
+
+### Summary
 
 Features include:
 - `modified_files`: show a listing of all modified files (configure with `file_extension_to_examine`)
@@ -117,21 +212,6 @@ expect(linting).to be_acceptable
 expect(linting).to be_acceptable_enough(2)
 expect(branch).to_not be_trunk
 expect(tests).to pass
-```
-
-
-### To receive refactoring suggestions from ChatGPT
-
-set the OPEN API KEY in `.env` (see `.sample.env`)
-
-```
-SAFE_COMMIT_OPENAI_API_KEY=sk-api-key
-```
-
-Add the following DSL command to your `.before_commit.rb`
-
-```
-suggest_refactors
 ```
 
 ## Development
