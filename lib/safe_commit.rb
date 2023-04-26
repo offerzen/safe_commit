@@ -29,7 +29,7 @@ module SafeCommit
     puts "Running tests...".colorize(:green)
     if test_files(options).empty?
       puts "No available tests to run on changed files"
-      return "#{pass}"
+      return pass
     end
 
     rspec_output = run_rspec(test_files(options))
