@@ -119,14 +119,16 @@ module SafeCommit
   private
 
   def run_rspec(test_filenames)
-    rspec_command = "./bin/rspec #{test_filenames.join(" ")} --format documentation"
+    rspec_command = "./bin/rspec #{test_filenames.join(" ")} --format progress --profile 0"
+    puts "\t#{rspec_command}".colorize(:green)
     output, = Open3.capture2(rspec_command)
     output
   end
 
   def extract_failed_tests_count(rspec_output)
-    test_results = rspec_output.split("\n").select { |element| element.match(/\d+ examples?, \d+ failures?, \d+ pending/) }
-    puts test_results
+    test_results = rspec_output.split("\n").select { |element| element.match(/\d+ examples?, \d+ failures?(, \d+ pending)?/) }
+
+    puts "\n\t#{test_results}".colorize(:yellow)
     return "ERROR tests fail" if test_results[0].nil?
 
     test_results[0].match(/(?<fails>\d+ failures?)/)[:fails]
