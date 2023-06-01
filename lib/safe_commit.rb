@@ -80,7 +80,9 @@ module SafeCommit
   # linting DSL
 
   def linting
-    output, = Open3.capture2("rubocop #{ModiFile.instance.modified_files.join(" ")} | tail -n 1 | awk -F, '{print $2}'")
+    linting_command = "rubocop #{ModiFile.instance.modified_files.join(" ")}"
+    puts "\t#{linting_command}".colorize(:green)
+    output, = Open3.capture2("#{linting_command} | tail -n 1 | awk -F, '{print $2}'")
     output.chomp
   end
 
